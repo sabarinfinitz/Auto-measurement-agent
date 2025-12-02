@@ -55,7 +55,7 @@ python app.py
 
 ### Access Application
 
-````
+````port
 http://localhost:3000
 ````
 
@@ -82,7 +82,7 @@ BACKEND_URL=http://localhost:8000
 
 ## Project Structure
 
-```
+```structure
 Measurement-agent/
 ├── backend/
 │   ├── app.py              # FastAPI server
