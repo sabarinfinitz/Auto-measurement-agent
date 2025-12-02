@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TailorAI v2 — Professional Measurement System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .content {
+      padding: 30px;
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .step-title {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .step-number {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      background: #667eea;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+    .video-container {
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 20px 0;
+      position: relative;
+    }
+    video, canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .canvas-hidden {
+      display: none;
+    }
+    .info-box {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .input-group {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 150px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    .btn-secondary {
+      background: #e0e7ff;
+      color: #667eea;
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: #d0d9ff;
+    }
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+    .btn-success:hover:not(:disabled) {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #667eea;
+      transition: width 0.3s ease;
+    }
+    .status-message {
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+      display: none;
+    }
+    .status-message.show {
+      display: block;
+      animation: slideDown 0.3s ease-in;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .status-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+    .status-error {
+      background: #fee2e2;
+      color: #7f1d1d;
+      border: 1px solid #fca5a5;
+    }
+    .status-info {
+      background: #dbeafe;
+      color: #0c2d6b;
+      border: 1px solid #93c5fd;
+    }
+    .measurements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .measurement-card {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .measurement-card h3 {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .measurement-card .value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+    .measurement-card .unit {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-left: 4px;
+    }
+    .angle-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin: 0 4px;
+    }
+    .angle-indicator.captured {
+      background: #10b981;
+    }
+    .angle-indicator.pending {
+      background: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 TailorAI v2</h1>
+      <p>Professional Measurement System for Tailor Shops</p>
+    </header>
+
+    <div class="content">
+      <!-- Progress Bar -->
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- Status Message -->
+      <div class="status-message" id="statusMessage"></div>
+
+      <!-- Step 1: Customer Info -->
+      <div class="step active" id="step1">
+        <div class="step-title">
+          <div class="step-number">1</div>
+          Customer Information
+        </div>
+        <div class="info-box">
+          📋 Please enter your information. This will be saved with your measurements.
+        </div>
+        <div class="input-group">
+          <label>Name *</label>
+          <input type="text" id="customerName" placeholder="Full name" required />
+        </div>
+        <div class="input-group">
+          <label>Height (cm) *</label>
+          <input type="number" id="customerHeight" placeholder="170" min="100" max="250" required />
+        </div>
+        <div class="input-group">
+          <label>Phone (optional)</label>
+          <input type="tel" id="customerPhone" placeholder="+1 (555) 000-0000" />
+        </div>
+        <div class="input-group">
+          <label>Email (optional)</label>
+          <input type="email" id="customerEmail" placeholder="email@example.com" />
+        </div>
+        <div class="button-group">
+          <button class="btn-primary" onclick="nextStep(2)">Continue to Calibration →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Calibration -->
+      <div class="step" id="step2">
+        <div class="step-title">
+          <div class="step-number">2</div>
+          Camera Calibration
+        </div>
+        <div class="info-box">
+          📐 Stand <strong>1.5 meters away from the camera</strong> with your full body visible. We'll use your height to calibrate the camera for accurate measurements.
+        </div>
+        <div class="video-container">
+          <video id="videoCalibrate" autoplay playsinline></video>
+        </div>
+        <canvas id="canvasCalibrate" class="canvas-hidden"></canvas>
+        <div class="button-group">
+          <button class="btn-primary" onclick="captureCalibration()" id="calibrateBtn">Capture for Calibration</button>
+          <button class="btn-secondary" onclick="prevStep(1)">← Back</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Front View -->
+      <div class="step" id="step3">
+        <div class="step-title">
+          <div class="step-number">3</div>
+          Front View
+          <span class="angle-indicator captured" id="indicator-front"></span>
+        </div>
+        <div class="info-box">
+          📸 <strong>Face the camera</strong> with arms at your sides. Stand straight for accurate measurements.
+        </div>
+        <div class="video-container">
+          <video id="videoFront" autoplay playsinline></video>
+        </div>
+        <canvas id="canvasFront" class="canvas-hidden"></canvas>
+        <div class="button-group">
+          <button class="btn-primary" onclick="captureFrontView()" id="frontBtn">Capture Front View</button>
+          <button class="btn-secondary" onclick="prevStep(2)">← Back</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Side View -->
+      <div class="step" id="step4">
+        <div class="step-title">
+          <div class="step-number">4</div>
+          Side View (Profile)
+          <span class="angle-indicator" id="indicator-side"></span>
+        </div>
+        <div class="info-box">
+          📸 <strong>Turn 90° to the left</strong>, showing your profile. Keep your arms at your sides.
+        </div>
+        <div class="video-container">
+          <video id="videoSide" autoplay playsinline></video>
+        </div>
+        <canvas id="canvasSide" class="canvas-hidden"></canvas>
+        <div class="button-group">
+          <button class="btn-primary" onclick="captureSideView()" id="sideBtn">Capture Side View</button>
+          <button class="btn-secondary" onclick="prevStep(3)">← Back</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Back View -->
+      <div class="step" id="step5">
+        <div class="step-title">
+          <div class="step-number">5</div>
+          Back View
+          <span class="angle-indicator" id="indicator-back"></span>
+        </div>
+        <div class="info-box">
+          📸 <strong>Turn around (180° from front)</strong>, showing your back. Keep your posture straight.
+        </div>
+        <div class="video-container">
+          <video id="videoBack" autoplay playsinline></video>
+        </div>
+        <canvas id="canvasBack" class="canvas-hidden"></canvas>
+        <div class="button-group">
+          <button class="btn-primary" onclick="captureBackView()" id="backBtn">Capture Back View</button>
+          <button class="btn-secondary" onclick="prevStep(4)">← Back</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Review Measurements -->
+      <div class="step" id="step6">
+        <div class="step-title">
+          <div class="step-number">6</div>
+          Your Measurements
+        </div>
+        <div class="info-box">
+          ✅ Measurements extracted from all three angles. All values in centimeters.
+        </div>
+        <div class="measurements-grid" id="measurementsGrid"></div>
+        <div class="button-group">
+          <button class="btn-success" onclick="saveMeasurements()">✓ Save Measurements</button>
+          <button class="btn-secondary" onclick="restartFlow()">Start Over</button>
+        </div>
+      </div>
+
+      <!-- Step 7: Confirmation -->
+      <div class="step" id="step7">
+        <div class="step-title">
+          <div class="step-number">7</div>
+          Measurements Saved
+        </div>
+        <div class="info-box" style="background: #d1fae5; border-color: #10b981;">
+          ✅ Your measurements have been successfully saved!
+        </div>
+        <div id="confirmationInfo" style="margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 8px;"></div>
+        <div class="button-group">
+          <button class="btn-primary" onclick="restartFlow()">Start New Measurement</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    let sessionId = null;
+    let calibrationData = null;
+    let measurements = null;
+
+    // Use current origin if running on same server
+    const API_BASE = window.location.origin;
+
+    // Initialize cameras
+    async function initCamera(videoElementId) {
+      try {
+        const video = document.getElementById(videoElementId);
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        video.srcObject = stream;
+        return video;
+      } catch (error) {
+        showStatus('Camera access denied or not available', 'error');
+        console.error('Camera error:', error);
+      }
+    }
+
+    function showStatus(message, type = 'info') {
+      const statusMsg = document.getElementById('statusMessage');
+      statusMsg.textContent = message;
+      statusMsg.className = `status-message show status-${type}`;
+      setTimeout(() => statusMsg.classList.remove('show'), 5000);
+    }
+
+    function updateProgress(step) {
+      const total = 7;
+      const percent = (step / total) * 100;
+      document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    function showStep(step) {
+      document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step${step}`).classList.add('active');
+      updateProgress(step);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextStep(step) {
+      currentStep = step;
+      showStep(step);
+    }
+
+    function prevStep(step) {
+      currentStep = step;
+      showStep(step);
+    }
+
+    async function captureCalibration() {
+      try {
+        showStatus('Initializing camera...', 'info');
+        const video = await initCamera('videoCalibrate');
+        
+        if (!video) {
+          showStatus('Failed to initialize camera', 'error');
+          return;
+        }
+
+        // Wait for video to be ready
+        await new Promise(resolve => {
+          if (video.readyState === 4) resolve();
+          else video.onloadedmetadata = resolve;
+        });
+
+        const canvas = document.getElementById('canvasCalibrate');
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        ctx.drawImage(video, 0, 0);
+
+        showStatus('Capturing image...', 'info');
+
+        // Convert canvas to blob using Promise
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to create blob from canvas'));
+            }
+          }, 'image/jpeg', 0.9);
+        });
+
+        const formData = new FormData();
+        formData.append('image', blob, 'calibration.jpg');
+        const height = parseFloat(document.getElementById('customerHeight').value);
+        
+        if (!height || height < 100 || height > 250) {
+          showStatus('Please enter a valid height (100-250 cm)', 'error');
+          return;
+        }
+
+        formData.append('known_height_cm', height);
+
+        try {
+          showStatus('Sending to server...', 'info');
+          const response = await fetch(`${API_BASE}/calibrate/setup`, {
+            method: 'POST',
+            body: formData
+          });
+
+          console.log('Response status:', response.status);
+          const data = await response.json();
+          console.log('Response data:', data);
+
+          if (response.ok && data.status === 'ok') {
+            sessionId = data.session_id;
+            calibrationData = data.calibration;
+            showStatus('✓ Calibration successful! cm_per_pixel: ' + data.calibration.cm_per_pixel.toFixed(4), 'success');
+            console.log('Moving to step 3...');
+            setTimeout(() => {
+              nextStep(3);
+            }, 1500);
+          } else {
+            showStatus('Calibration failed: ' + (data.detail || data.message || 'Unknown error'), 'error');
+          }
+        } catch (error) {
+          console.error('Fetch error:', error);
+          showStatus('Network error: ' + error.message, 'error');
+        }
+      } catch (error) {
+        console.error('Calibration error:', error);
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+
+    async function captureAngle(videoId, canvasId, angleType) {
+      if (!sessionId) {
+        showStatus('No calibration. Run calibration first.', 'error');
+        return;
+      }
+
+      try {
+        showStatus(`Capturing ${angleType} view...`, 'info');
+        const video = await initCamera(videoId);
+        
+        if (!video) {
+          showStatus('Failed to initialize camera', 'error');
+          return;
+        }
+
+        // Wait for video to be ready
+        await new Promise(resolve => {
+          if (video.readyState === 4) resolve();
+          else video.onloadedmetadata = resolve;
+        });
+
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        ctx.drawImage(video, 0, 0);
+
+        // Convert canvas to blob using Promise
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to create blob from canvas'));
+            }
+          }, 'image/jpeg', 0.9);
+        });
+
+        const formData = new FormData();
+        formData.append('image', blob, `${angleType}.jpg`);
+        formData.append('session_id', sessionId);
+        formData.append('angle_type', angleType);
+
+        try {
+          const response = await fetch(`${API_BASE}/capture/angle`, {
+            method: 'POST',
+            body: formData
+          });
+
+          console.log(`${angleType} - Response status:`, response.status);
+          const data = await response.json();
+          console.log(`${angleType} - Response data:`, data);
+
+          if (response.ok && data.status === 'ok') {
+            document.getElementById(`indicator-${angleType}`).classList.add('captured');
+            showStatus(`✓ ${angleType} view captured successfully!`, 'success');
+            
+            // Move to next step
+            const nextStepNum = { 'front': 4, 'side': 5, 'back': 6 }[angleType];
+            setTimeout(() => {
+              if (nextStepNum === 6) {
+                // Measurement extraction after back view
+                extractMeasurements();
+              } else {
+                nextStep(nextStepNum);
+              }
+            }, 1500);
+          } else {
+            showStatus('Capture failed: ' + (data.detail || data.message || 'Unknown error'), 'error');
+          }
+        } catch (error) {
+          console.error(`${angleType} fetch error:`, error);
+          showStatus('Network error: ' + error.message, 'error');
+        }
+      } catch (error) {
+        console.error(`${angleType} capture error:`, error);
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+
+    function captureFrontView() {
+      captureAngle('videoFront', 'canvasFront', 'front');
+    }
+
+    function captureSideView() {
+      captureAngle('videoSide', 'canvasSide', 'side');
+    }
+
+    function captureBackView() {
+      captureAngle('videoBack', 'canvasBack', 'back');
+    }
+
+    async function extractMeasurements() {
+      if (!sessionId) {
+        showStatus('No session. Please restart.', 'error');
+        return;
+      }
+
+      try {
+        showStatus('Extracting measurements...', 'info');
+        const response = await fetch(`${API_BASE}/measure/extract?session_id=${sessionId}`, {
+          method: 'POST'
+        });
+
+        console.log('Extract - Response status:', response.status);
+        const data = await response.json();
+        console.log('Extract - Response data:', data);
+
+        if (response.ok && data.status === 'ok') {
+          measurements = data.measurements;
+          displayMeasurements();
+          nextStep(6);
+          showStatus('✓ Measurements extracted successfully!', 'success');
+        } else {
+          showStatus('Extraction failed: ' + (data.detail || data.message || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        console.error('Extract error:', error);
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+
+    function displayMeasurements() {
+      const grid = document.getElementById('measurementsGrid');
+      grid.innerHTML = '';
+
+      const meas = measurements;
+      const allMeasurements = [
+        ...Object.entries(meas.upper_body || {}),
+        ...Object.entries(meas.torso || {}),
+        ...Object.entries(meas.lower_body || {}),
+        ...Object.entries(meas.full_body || {})
+      ];
+
+      allMeasurements.forEach(([key, value]) => {
+        if (typeof value === 'number' && !key.includes('_px') && !key.includes('_confidence')) {
+          const name = key.replace(/_/g, ' ').replace(/cm/g, '').trim();
+          const card = document.createElement('div');
+          card.className = 'measurement-card';
+          card.innerHTML = `
+            <h3>${name}</h3>
+            <div><span class="value">${value.toFixed(1)}</span><span class="unit">cm</span></div>
+          `;
+          grid.appendChild(card);
+        }
+      });
+    }
+
+    async function saveMeasurements() {
+      const customerInfo = {
+        name: document.getElementById('customerName').value,
+        phone: document.getElementById('customerPhone').value,
+        email: document.getElementById('customerEmail').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/customer/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            customer_info: customerInfo,
+            measurements: measurements
+          })
+        });
+        const data = await response.json();
+
+        if (data.status === 'ok') {
+          document.getElementById('confirmationInfo').innerHTML = `
+            <strong>Customer ID:</strong> ${data.customer_id}<br>
+            <strong>File Saved:</strong> ${data.file_saved}<br>
+            <strong>Measurements Count:</strong> ${data.measurements_count}
+          `;
+          nextStep(7);
+          showStatus('✓ Measurements saved successfully!', 'success');
+        } else {
+          showStatus('Save failed: ' + (data.detail || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        showStatus('Error: ' + error.message, 'error');
+      }
+    }
+
+    function restartFlow() {
+      sessionId = null;
+      calibrationData = null;
+      measurements = null;
+      document.getElementById('customerName').value = '';
+      document.getElementById('customerPhone').value = '';
+      document.getElementById('customerEmail').value = '';
+      document.getElementById('customerHeight').value = '170';
+      document.querySelectorAll('.angle-indicator').forEach(el => el.classList.remove('captured'));
+      nextStep(1);
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      showStep(1);
+    });
+  </script>
+</body>
+</html>

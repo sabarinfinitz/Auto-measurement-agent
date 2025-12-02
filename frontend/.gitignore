@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+flaskenv/
+.venv/
+venv/
+ENV/
+env/
+.virtualenv/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Static assets (if generated)
+static/uploads/
+static/temp/
+static/*.jpg
+static/*.png
+
+# OS
+.DS_Store
+Thumbs.db
+*.exe
+*.msi
+
+# Node (if using npm for frontend assets)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+build/
+
+# Flask instance folder
+instance/
+
+# Credentials & Secrets
+secrets.json
+credentials.json
+api_keys.txt
+*.pem
+*.key
+*.crt
